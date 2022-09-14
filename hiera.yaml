@@ -1,0 +1,23 @@
+---
+:backends:
+  - yaml
+
+:hierarchy:
+    - "%{::zone}/hosts/%{::fqdn}"
+    - "%{::zone}/domains/%{::subdom4}"
+    - "%{::zone}/domains/%{::subdom3}"
+    - "%{::zone}/domains/%{::subdom2}"
+    - "%{::zone}/domains/%{::subdom1}"
+    - "%{::zone}/domains/%{::subdom0}"
+    - "%{::zone}"
+    - base
+
+
+:yaml:
+# datadir is empty here, so hiera uses its defaults:
+# - /etc/puppetlabs/code/environments/%{environment}/hieradata on *nix
+# - %CommonAppData%\PuppetLabs\code\environments\%{environment}\hieradata on Windows
+# When specifying a datadir, make sure the directory exists.
+  :datadir:
+    /etc/puppetlabs/code/environments/%{environment}/hieradata
+

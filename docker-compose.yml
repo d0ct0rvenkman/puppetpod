@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  tailscale:
+    container_name: ${PODNAME}-tailscale
+    hostname: ${PODNAME}     # This will become the tailscale device name.
+    image: tailscale/tailscale:stable
+    environment:
+      - TS_AUTH_KEY=${TSKEY}       # put this in a .env file
+      - TS_STATE_DIR=/var/lib/tailscale
+    ports:
+      - "8000:8000"   # uncomment any of these
+      - "8081:8081"   # if you want this service to be        
+      - "8140:8140"   # on or via the host machine
+    volumes:
+      - "./tailscale/var_lib_tailscale:/var/lib/tailscale"        # State data will be stored in this directory
+
+  puppet:
+    container_name: ${PODNAME}-puppet
+    image: puppet/puppetserver
+    volumes:
+      - ./code:/etc/puppetlabs/code/
+      - ./puppet/ssl:/etc/puppetlabs/puppet/ssl/
+      - ./puppet/serverdata:/opt/puppetlabs/server/data/puppetserver/
+      - ./puppet/ca:/etc/puppetlabs/puppetserver/ca/
+      - ./hiera.yaml:/etc/puppetlabs/puppet/hiera.yaml:ro
+    environment:
+      - PUPPETSERVER_HOSTNAME=${PODNAME}
+      - DNS_ALT_NAMES=puppet.spacecricket.net,puppet.ts,puppet.home.ts,puppet.lab.home.ts,puppet
+      - PUPPETDB_SERVER_URLS=https://${PODNAME}:8081
+      - CA_HOSTNAME=${PODNAME}
+      - CA_ALLOW_SUBJECT_ALT_NAMES=true      # required to be true (perhaps temporarily) to let puppetdb have DNS_ALT_NAMEs
+    network_mode: service:tailscale
+
+  puppetdb-postgres:
+    container_name: ${PODNAME}-postgres
+    image: postgres:14.5
+    environment:
+      - POSTGRES_PASSWORD=puppetdb
+      - POSTGRES_USER=puppetdb
+    volumes:
+      - ./puppetdb-postgres/data:/var/lib/postgresql/data/
+    network_mode: service:tailscale
+
+  puppetdb:
+    container_name: ${PODNAME}-puppetdb
+    image: puppet/puppetdb
+    environment:
+      - PUPPETDB_POSTGRES_HOSTNAME=${PODNAME}
+      - PUPPETSERVER_HOSTNAME=${PODNAME}
+      - DNS_ALT_NAMES=${PODNAME}                  # required to make puppetdb answer on puppet's hostname
+    volumes:
+      - ./puppetdb/server:/opt/puppetlabs/server/data/puppetdb/
+    network_mode: service:tailscale
+
+  puppetboard:
+    container_name: ${PODNAME}-puppetboard
+    image: ghcr.io/voxpupuli/puppetboard:latest
+    environment:
+      - PUPPETDB_HOST=${PODNAME}
+      - PUPPETDB_PORT=8080
+      - PUPPETBOARD_PORT=8000
+    network_mode: service:tailscale
+
