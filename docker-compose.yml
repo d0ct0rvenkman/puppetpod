@@ -17,7 +17,7 @@ services:
 
   puppet:
     container_name: ${PODNAME}-puppet
-    image: puppet/puppetserver
+    image: puppet/puppetserver:7.8.0
     volumes:
       - ./code:/etc/puppetlabs/code/
       - ./puppet/ssl:/etc/puppetlabs/puppet/ssl/
@@ -44,7 +44,7 @@ services:
 
   puppetdb:
     container_name: ${PODNAME}-puppetdb
-    image: puppet/puppetdb
+    image: puppet/puppetdb:7.10.0
     environment:
       - PUPPETDB_POSTGRES_HOSTNAME=${PODNAME}
       - PUPPETSERVER_HOSTNAME=${PODNAME}
