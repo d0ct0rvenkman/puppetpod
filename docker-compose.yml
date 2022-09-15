@@ -11,7 +11,7 @@ services:
     ports:
       - "8000:8000"   # uncomment any of these
       - "8081:8081"   # if you want this service to be        
-      - "8140:8140"   # on or via the host machine
+      - "8140:8140"   # accessible on or via the host machine
     volumes:
       - "./tailscale/var_lib_tailscale:/var/lib/tailscale"        # State data will be stored in this directory
 
@@ -26,7 +26,7 @@ services:
       - ./hiera.yaml:/etc/puppetlabs/puppet/hiera.yaml:ro
     environment:
       - PUPPETSERVER_HOSTNAME=${PODNAME}
-      - DNS_ALT_NAMES=puppet.spacecricket.net,puppet.ts,puppet.home.ts,puppet.lab.home.ts,puppet
+      - DNS_ALT_NAMES=${PUPPETSERVER_ALT_NAMES}
       - PUPPETDB_SERVER_URLS=https://${PODNAME}:8081
       - CA_HOSTNAME=${PODNAME}
       - CA_ALLOW_SUBJECT_ALT_NAMES=true      # required to be true (perhaps temporarily) to let puppetdb have DNS_ALT_NAMEs
