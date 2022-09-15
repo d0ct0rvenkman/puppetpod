@@ -13,7 +13,7 @@ services:
       - "8081:8081"   # if you want this service to be        
       - "8140:8140"   # accessible on or via the host machine
     volumes:
-      - "./tailscale/var_lib_tailscale:/var/lib/tailscale"        # State data will be stored in this directory
+      - "./tailscale/var_lib_tailscale:/var/lib/tailscale"        
 
   puppet:
     container_name: ${PODNAME}-puppet
@@ -48,7 +48,7 @@ services:
     environment:
       - PUPPETDB_POSTGRES_HOSTNAME=${PODNAME}
       - PUPPETSERVER_HOSTNAME=${PODNAME}
-      - DNS_ALT_NAMES=${PODNAME}                  # required to make puppetdb answer on puppet's hostname
+      - DNS_ALT_NAMES=${PODNAME}                  # required to make puppetdb answer on ${PODNAME}'s shared hostname
     volumes:
       - ./puppetdb/server:/opt/puppetlabs/server/data/puppetdb/
     network_mode: service:tailscale
