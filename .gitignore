@@ -1,1 +1,6 @@
 .env
+code/
+puppet/
+puppetdb/
+puppetdb-postgres/
+tailscale/
