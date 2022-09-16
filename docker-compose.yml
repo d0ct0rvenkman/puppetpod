@@ -14,6 +14,7 @@ services:
       - "8140:8140"   # accessible on or via the host machine
     volumes:
       - "./tailscale/var_lib_tailscale:/var/lib/tailscale"        
+    restart: unless-stopped
 
   puppet:
     container_name: ${PODNAME}-puppet
@@ -29,8 +30,9 @@ services:
       - DNS_ALT_NAMES=${PUPPETSERVER_ALT_NAMES}
       - PUPPETDB_SERVER_URLS=https://${PODNAME}:8081
       - CA_HOSTNAME=${PODNAME}
-      - CA_ALLOW_SUBJECT_ALT_NAMES=true      # required to be true (perhaps temporarily) to let puppetdb have DNS_ALT_NAMEs
+      - CA_ALLOW_SUBJECT_ALT_NAMES=false      # required to be true (perhaps temporarily) to let puppetdb have DNS_ALT_NAMEs
     network_mode: service:tailscale
+    restart: unless-stopped
 
   puppetdb-postgres:
     container_name: ${PODNAME}-postgres
@@ -41,6 +43,7 @@ services:
     volumes:
       - ./puppetdb-postgres/data:/var/lib/postgresql/data/
     network_mode: service:tailscale
+    restart: unless-stopped
 
   puppetdb:
     container_name: ${PODNAME}-puppetdb
@@ -52,6 +55,7 @@ services:
     volumes:
       - ./puppetdb/server:/opt/puppetlabs/server/data/puppetdb/
     network_mode: service:tailscale
+    restart: unless-stopped
 
   puppetboard:
     container_name: ${PODNAME}-puppetboard
@@ -61,4 +65,5 @@ services:
       - PUPPETDB_PORT=8080
       - PUPPETBOARD_PORT=8000
     network_mode: service:tailscale
+    restart: unless-stopped
 
